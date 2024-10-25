@@ -41,6 +41,7 @@
 #endif
 
 #define DROP_THRESHOLD 0x1000000U
+#define INIT_ITERATION 100
 
 /* #define PRINT_ALL */
 
@@ -50,7 +51,10 @@ typedef unsigned int cycles_32_t;
 volatile cycles_32_t start;
 volatile cycles_32_t end;
 
-struct perfdata perf;
+struct perfdata perf, perf_init;
+cycles_t		result_init[INIT_ITERATION] = {
+	0,
+};
 cycles_t        result[ITERATION] = {
   0,
 };
@@ -154,16 +158,32 @@ void
 cos_init(void)
 {
 	printc("Benchmark for the tmrmgr (w/sched & evt interface).\n");
+
+	int i;
+	patina_timer_t tid;
+	patina_event_t evt;
+
+	perfdata_init(&perf_init, "Timer Initialization", result_init, INIT_ITERATION);
+	for (i = 0; i < INIT_ITERATION; i++) {
+		start = time_now();
+		tid = patina_timer_create();
+		patina_event_create(&evt, 1);
+		end = time_now();
+		perfdata_add(&perf_init, end - start);
+	}
+	
+	perfdata_calc(&perf_init);
+	perfdata_print(&perf_init);
 }
 
 int
 main(void)
 {
-	sched_thd_block_timeout(0, time_now() + time_usec2cyc(1000 * 1000));
+	// sched_thd_block_timeout(0, time_now() + time_usec2cyc(1000 * 1000));
 
-	test_tmr();
+	// test_tmr();
 
-	printc("Running benchmark, exiting main thread...\n");
+	// printc("Running benchmark, exiting main thread...\n");
 
 	return 0;
 }

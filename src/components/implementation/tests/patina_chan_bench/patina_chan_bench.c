@@ -40,6 +40,9 @@
 #endif
 #undef PRINT_ALL
 
+
+#define INIT_ITERATION 100
+
 /* Two options are available: Sender at low/high prio, data words 4 */
 #define DATA_WORDS 2
 
@@ -60,7 +63,10 @@ volatile cycles_32_t ts3[DATA_WORDS] = {
   0,
 };
 
-struct perfdata perf1, perf2, perf3;
+struct perfdata perf1, perf2, perf3, perf_init;
+cycles_t		result_init[INIT_ITERATION] = {
+	0,
+};
 cycles_t        result1[ITERATION] = {
   0,
 };
@@ -199,29 +205,46 @@ test_chan(void)
 void
 cos_init(void)
 {
-	printc("Benchmark for the patina chan (w/sched interface).\n");
+	// printc("Benchmark for the patina chan (w/sched interface).\n");
+
+	// printc("Initializing channel\n");
+	cycles_32_t start, end;
+	int i;
+
+
+	perfdata_init(&perf_init, "Channels Initialization", result_init, INIT_ITERATION);
+	for (i = 0; i < INIT_ITERATION; i++) {
+		start = (cycles_32_t)time_now();
+		cid  = patina_channel_create(sizeof(cycles_32_t), DATA_WORDS, 0, CHAN_DEFAULT);
+		cid2 = patina_channel_create(sizeof(cycles_32_t), DATA_WORDS, 0, CHAN_DEFAULT);
+
+		sid  = patina_channel_get_send(cid);
+		rid  = patina_channel_get_recv(cid);
+		sid2 = patina_channel_get_send(cid2);
+		rid2 = patina_channel_get_recv(cid2);
+
+		end = (cycles_32_t)time_now();
+		perfdata_add(&perf_init, end - start);
+	}
+	
+	perfdata_calc(&perf_init);
+	perfdata_print(&perf_init);
+
 }
 
 int
 main(void)
 {
-	sched_thd_block_timeout(0, time_now() + time_usec2cyc(1000 * 1000));
+	// sched_thd_block_timeout(0, time_now() + time_usec2cyc(1000 * 1000));
 
-	printc("Initializing channel\n");
+	// cid  = patina_channel_create(sizeof(cycles_32_t), DATA_WORDS, 0, CHAN_DEFAULT);
+	// cid2 = patina_channel_create(sizeof(cycles_32_t), DATA_WORDS, 0, CHAN_DEFAULT);
+	// printc("Initializing end points\n");
 
-	cid  = patina_channel_create(sizeof(cycles_32_t), DATA_WORDS, 0, CHAN_DEFAULT);
-	cid2 = patina_channel_create(sizeof(cycles_32_t), DATA_WORDS, 0, CHAN_DEFAULT);
 
-	printc("Initializing end points\n");
+	// test_chan();
 
-	sid  = patina_channel_get_send(cid);
-	rid  = patina_channel_get_recv(cid);
-	sid2 = patina_channel_get_send(cid2);
-	rid2 = patina_channel_get_recv(cid2);
-
-	test_chan();
-
-	printc("Running benchmark, exiting main thread...\n");
+	// printc("Running benchmark, exiting main thread...\n");
 
 	return 0;
 }

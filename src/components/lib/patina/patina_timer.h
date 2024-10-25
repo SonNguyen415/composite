@@ -5,7 +5,7 @@
 #include <patina_evt.h>
 #include <tmr.h>
 
-#define PATINA_MAX_NUM_TIMER 32
+#define PATINA_MAX_NUM_TIMER 1000
 
 typedef size_t patina_timer_t;
 

@@ -31,6 +31,9 @@
 #define debug(format, ...)
 #endif
 
+#define INIT_ITERATION 100
+
+
 /* One low-priority thread and one high-priority thread contends on the lock */
 #ifdef COLD_CACHE
 #define ITERATION 10 * 10
@@ -49,10 +52,14 @@ volatile int   flag = 0;
 volatile cycles_t start;
 volatile cycles_t end;
 
-struct perfdata perf;
+struct perfdata perf, perf_init;
+cycles_t		result_init[INIT_ITERATION] = {
+	0,
+};
 cycles_t        result[ITERATION] = {
   0,
 };
+
 
 volatile char pool[CACHE_SIZE * 4] = {
   0,
@@ -131,8 +138,7 @@ test_lock(void)
 
 	sched_param_t sps[] = {SCHED_PARAM_CONS(SCHEDP_PRIO, 4), SCHED_PARAM_CONS(SCHEDP_PRIO, 6)};
 
-	mid = patina_mutex_create(0);
-
+	
 	/* Uncontended lock taking/releasing */
 	perfdata_init(&perf, "Uncontended lock - take+release", result, ITERATION);
 	for (i = 0; i < ITERATION + COLD_OFFSET; i++) {
@@ -167,17 +173,30 @@ test_lock(void)
 void
 cos_init(void)
 {
-	printc("Benchmark for the crt_lock (w/sched interface).\n");
+	// printc("Benchmark for the crt_lock (w/sched interface).\n");
+
+	int i;
+
+	perfdata_init(&perf_init, "Mutex Initialization", result_init, INIT_ITERATION);
+	for (i = 0; i < INIT_ITERATION; i++) {
+		start = time_now();
+		mid = patina_mutex_create(0);
+		end = time_now();
+		perfdata_add(&perf_init, end - start);
+	}
+	
+	perfdata_calc(&perf_init);
+	perfdata_print(&perf_init);
 }
 
 int
 main(void)
 {
-	sched_thd_block_timeout(0, time_now() + time_usec2cyc(1000 * 1000));
+	// sched_thd_block_timeout(0, time_now() + time_usec2cyc(1000 * 1000));
 
-	test_lock();
+	// test_lock();
 
-	printc("Running benchmark, exiting main thread...\n");
+	// printc("Running benchmark, exiting main thread...\n");
 
 	return 0;
 }

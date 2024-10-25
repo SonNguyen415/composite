@@ -25,6 +25,7 @@ patina_event_t  evt;
 #define ITERATION 10 * 1000
 #undef USE_EVTMGR
 /* #define PRINT_ALL */
+#define INIT_ITERATION 1
 
 #define TEST_CHAN_ITEM_SZ sizeof(u32_t)
 #define TEST_CHAN_NSLOTS 2
@@ -35,7 +36,10 @@ patina_event_t  evt;
 
 typedef unsigned int cycles_32_t;
 
-struct perfdata perf1, perf2, perf3;
+struct perfdata perf1, perf2, perf3, perf_init;
+cycles_t		result_init[INIT_ITERATION] = {
+	0,
+};
 cycles_t        result1[ITERATION] = {
   0,
 };
@@ -123,17 +127,36 @@ main(void)
 void
 cos_init(void)
 {
+
+	int i;
+	perfdata_init(&perf_init, "Channel Send Initialization", result_init, INIT_ITERATION);
+	volatile cycles_32_t start;
+	volatile cycles_32_t end;
+
+
 	perfdata_init(&perf1, "IPC channel - reader high use this", result1, ITERATION);
 	perfdata_init(&perf2, "IPC channel - writer high use this", result2, ITERATION);
 	perfdata_init(&perf3, "IPC channel - roundtrip", result3, ITERATION);
 
-	printc("Component chan sender initializing:\n\tJoin channel %d\n", TEST_CHAN_SEND_ID);
-	sid = patina_channel_retrieve_send(TEST_CHAN_ITEM_SZ, TEST_CHAN_NSLOTS, TEST_CHAN_SEND_ID);
+	for (i = 0; i < INIT_ITERATION; i++) {
+		start = time_now();
 
-	printc("\tJoin channel %d\n", TEST_CHAN_RECV_ID);
-	rid = patina_channel_retrieve_recv(TEST_CHAN_ITEM_SZ, TEST_CHAN_NSLOTS, TEST_CHAN_RECV_ID);
+		// printc("Component chan sender initializing:\n\tJoin channel %d\n", TEST_CHAN_SEND_ID);
+		sid = patina_channel_retrieve_send(TEST_CHAN_ITEM_SZ, TEST_CHAN_NSLOTS, TEST_CHAN_SEND_ID);
 
-	printc("\tPriority %d for self!\n", TEST_CHAN_PRIO_SELF);
+		//printc("\tJoin channel %d\n", TEST_CHAN_RECV_ID);
+		rid = patina_channel_retrieve_recv(TEST_CHAN_ITEM_SZ, TEST_CHAN_NSLOTS, TEST_CHAN_RECV_ID);
+		end = time_now();
+		perfdata_add(&perf_init, end - start);
+	}
+	
+	perfdata_calc(&perf_init);
+	perfdata_print(&perf_init);
+
+
+
+
+	// printc("\tPriority %d for self!\n", TEST_CHAN_PRIO_SELF);
 	if (sched_thd_param_set(cos_thdid(), sched_param_pack(SCHEDP_PRIO, TEST_CHAN_PRIO_SELF))) {
 		printc("sched_thd_param_set failed.\n");
 		BUG();

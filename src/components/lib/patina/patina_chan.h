@@ -4,7 +4,7 @@
 #include <cos_types.h>
 #include <chan.h>
 
-#define PATINA_MAX_NUM_CHAN 32
+#define PATINA_MAX_NUM_CHAN 1000
 
 typedef size_t patina_chan_t;
 typedef size_t patina_chan_s_t;

@@ -5,7 +5,7 @@
 #include <chan.h>
 #include <static_slab.h>
 
-#define MAX_NUM_CHAN 32
+#define MAX_NUM_CHAN 1000
 struct chan_info {
 	struct __chan_meta info;
 	unsigned int npages;

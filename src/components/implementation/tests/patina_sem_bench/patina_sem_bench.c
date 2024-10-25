@@ -21,6 +21,9 @@
 #define ITERATION 10 * 1000
 /* #define PRINT_ALL */
 
+#define INIT_ITERATION 100
+
+
 patina_sem_t sid;
 thdid_t      sem_hi = 0, sem_lo = 0;
 volatile int flag = 0;
@@ -28,7 +31,10 @@ volatile int flag = 0;
 volatile cycles_t start;
 volatile cycles_t end;
 
-struct perfdata perf;
+struct perfdata perf, perf_init;
+cycles_t		result_init[INIT_ITERATION] = {
+	0,
+};
 cycles_t        result[ITERATION] = {
   0,
 };
@@ -133,17 +139,31 @@ test_sem(void)
 void
 cos_init(void)
 {
-	printc("Benchmark for the crt_sem (w/sched interface).\n");
+	// printc("Benchmark for the crt_sem (w/sched interface).\n");
+
+
+	int i;
+
+	perfdata_init(&perf_init, "Semaphore Initialization", result_init, INIT_ITERATION);
+	for (i = 0; i < INIT_ITERATION; i++) {
+		start = time_now();
+		sid = patina_sem_create(1, 0);
+		end = time_now();
+		perfdata_add(&perf_init, end - start);
+	}
+	
+	perfdata_calc(&perf_init);
+	perfdata_print(&perf_init);
 }
 
 int
 main(void)
 {
-	sched_thd_block_timeout(0, time_now() + time_usec2cyc(1000 * 1000));
+	// sched_thd_block_timeout(0, time_now() + time_usec2cyc(1000 * 1000));
 
-	test_sem();
+	// test_sem();
 
-	printc("Running benchmark, exiting main thread...\n");
+	// printc("Running benchmark, exiting main thread...\n");
 
 	return 0;
 }

@@ -33,6 +33,13 @@ patina_event_t  evt;
 
 typedef unsigned int cycles_32_t;
 
+
+#define INIT_ITERATION 1
+struct perfdata  perf_init;
+cycles_t		result_init[INIT_ITERATION] = {
+	0,
+};
+
 int
 main(void)
 {
@@ -89,11 +96,29 @@ main(void)
 void
 cos_init(void)
 {
-	printc("Component chan receiver initializing:\n\tCreate channel %d\n", TEST_CHAN_SEND_ID);
-	sid = patina_channel_retrieve_send(TEST_CHAN_ITEM_SZ, TEST_CHAN_NSLOTS, TEST_CHAN_SEND_ID);
+	int i;
+	perfdata_init(&perf_init, "Channel Receive Initialization", result_init, INIT_ITERATION);
+	volatile cycles_32_t start;
+	volatile cycles_32_t end;
 
-	printc("\tCreate channel %d\n", TEST_CHAN_RECV_ID);
-	rid = patina_channel_retrieve_recv(TEST_CHAN_ITEM_SZ, TEST_CHAN_NSLOTS, TEST_CHAN_RECV_ID);
+	//printc("Component chan receiver initializing:\n\tCreate channel %d\n", TEST_CHAN_SEND_ID);
+
+	for (i = 0; i < INIT_ITERATION; i++) {
+		start = time_now();
+
+			
+		sid = patina_channel_retrieve_send(TEST_CHAN_ITEM_SZ, TEST_CHAN_NSLOTS, TEST_CHAN_SEND_ID);
+
+		//printc("\tCreate channel %d\n", TEST_CHAN_RECV_ID);
+		rid = patina_channel_retrieve_recv(TEST_CHAN_ITEM_SZ, TEST_CHAN_NSLOTS, TEST_CHAN_RECV_ID);
+		
+		end = time_now();
+		perfdata_add(&perf_init, end - start);
+	}
+	
+	perfdata_calc(&perf_init);
+	perfdata_print(&perf_init);
+	
 
 	printc("\tPriority %d for self!\n", TEST_CHAN_PRIO_SELF);
 	if (sched_thd_param_set(cos_thdid(), sched_param_pack(SCHEDP_PRIO, TEST_CHAN_PRIO_SELF))) {
