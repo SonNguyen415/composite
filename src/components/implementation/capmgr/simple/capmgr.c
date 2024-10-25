@@ -17,6 +17,8 @@
 #include <addr.h>
 #include <contigmem.h>
 
+#include <cos_time.h>
+
 struct cm_rcv {
 	struct crt_rcv  rcv;
 	struct cm_comp *sched;
@@ -971,6 +973,10 @@ void capmgr_create_noop(void) { return; }
 void
 cos_init(void)
 {
+
+	cycles_t start, end;
+	start = time_now();
+
 	struct cos_defcompinfo *defci = cos_defcompinfo_curr_get();
 	struct cos_compinfo    *ci    = cos_compinfo_get(defci);
 	struct initargs curr, comps;
@@ -1022,15 +1028,20 @@ cos_init(void)
 	/* Reserve some continuous pages */
 	contig_phy_pages = crt_page_allocn(&cm_self()->comp, CONTIG_PHY_PAGES);
 	contigmem_check(cos_compid(), (vaddr_t)contig_phy_pages, CONTIG_PHY_PAGES);
-
+	end = time_now();
+	printc("Capability initilization: %lld\n", end-start);
 	return;
 }
 
 void
 cos_parallel_init(coreid_t cid, int init_core, int ncores)
 {
+	cycles_t start, end;
+	start = time_now();
 	cos_defcompinfo_sched_init();
 	capmgr_execution_init(init_core);
+	end = time_now();
+	printc("Parallel initilization: %lld\n", end-start);
 }
 
 void

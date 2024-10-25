@@ -4,7 +4,7 @@
 #include <chanmgr.h>
 #include <chan.h>
 #include <static_slab.h>
-
+#include <cos_time.h>
 #define MAX_NUM_CHAN 1000
 struct chan_info {
 	struct __chan_meta info;
@@ -166,6 +166,9 @@ cos_init(void)
 
 	printc("Chanmgr (%ld): creating static, initial channels.\n", cos_compid());
 
+	cycles_t start, end;
+
+	start = time_now();
 	for (i = 0; init_chan[i].id > 0; i++) {
 		struct init_info *ch = &init_chan[i];
 		chan_id_t id;
@@ -173,4 +176,6 @@ cos_init(void)
 		id = __chanmgr_create(ch->itemsz, ch->nitems, 0, ch->id);
 		if (id != ch->id) BUG();
 	}
+	end = time_now();
+	printc("Channel manager initialization: %lld\n", end-start);
 }

@@ -18,6 +18,7 @@
 
 #include <init.h>
 #include <addr.h>
+#include <cos_time.h>
 
 #ifndef BOOTER_MAX_SINV
 #define BOOTER_MAX_SINV 1024
@@ -631,17 +632,31 @@ init_exit(int retval)
 void
 cos_parallel_init(coreid_t cid, int is_init_core, int ncores)
 {
+	cycles_t start, end;
+
+	start = time_now();
 	if (!is_init_core) cos_defcompinfo_sched_init();
 
 	execution_init(is_init_core);
+	end = time_now();
+
+	printc("Booter Parallel initialization: %lld\n", end-start);
+
 }
 
 void
 cos_init(void)
 {
+	cycles_t start, end;
+
+	start = time_now();
 	booter_init();
 	cos_defcompinfo_sched_init();
 	comps_init();
+	end = time_now();
+
+	printc("Booter initialization: %lld\n", end-start);
+
 	/*
 	 * All component resources except for those required for
 	 * execution should be setup now.

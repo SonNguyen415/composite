@@ -229,7 +229,12 @@ cos_init(void)
 	printc("Timer manager: init.\n");
 
 	/* Initialize active timer heap */
+	cycles_t start, end;
+
+	start = time_now();
 	modifying = 0;
 	timer_active = (struct heap *)timer_heap;
 	heap_init(timer_active, MAX_NUM_TMR);
+	end = time_now();
+	printc("Timer manager initialization: %lld\n", end-start);
 }
