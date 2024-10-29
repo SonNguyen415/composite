@@ -179,12 +179,12 @@ cm_thd_alloc_in(struct cm_comp *c, struct cm_comp *sched, thdclosure_index_t clo
 	if (!t) return NULL;
 	if (crt_thd_create_in(&t->thd, &c->comp, closure_id)) {
 		ss_thd_free(t);
-		printc("capmgr: couldn't create new thread correctly.\n");
+		// printc("capmgr: couldn't create new thread correctly.\n");
 		return NULL;
 	}
 	ss_thd_activate(t);
 	if (crt_thd_alias_in(&t->thd, &sched->comp, &res)) {
-		printc("capmgr: couldn't alias correctly.\n");
+		// printc("capmgr: couldn't alias correctly.\n");
 		/* FIXME: reclaim the thread */
 		return NULL;
 	}
@@ -588,7 +588,7 @@ capmgr_execution_init(int is_init_core)
 	/* Create execution in the relevant components */
 	ret = args_get_entry("execute", &exec_entries);
 	assert(!ret);
-	if (is_init_core) printc("Capmgr: %d components that need execution\n", args_len(&exec_entries));
+	// if (is_init_core) printc("Capmgr: %d components that need execution\n", args_len(&exec_entries));
 	for (cont = args_iter(&exec_entries, &i, &curr) ; cont ; cont = args_iter_next(&i, &curr)) {
 		struct cm_comp    *cmc;
 		struct crt_comp   *comp;
@@ -610,7 +610,7 @@ capmgr_execution_init(int is_init_core)
 			if (crt_comp_exec(comp, crt_comp_exec_sched_init(&ctxt, &r->rcv))) BUG();
 			ss_rcv_activate(r);
 			cmc->sched_rcv[cos_cpuid()] = r;
-			if (is_init_core) printc("\tCreated scheduling execution for %ld\n", id);
+			// if (is_init_core) printc("\tCreated scheduling execution for %ld\n", id);
 		} else if (!strcmp(exec_type, "init")) {
 			struct cm_thd *t = ss_thd_alloc();
 
@@ -619,7 +619,7 @@ capmgr_execution_init(int is_init_core)
 			ss_thd_activate(t);
 			if (is_init_core) printc("\tCreated thread for %ld\n", id);
 		} else {
-			printc("Error: Found unknown execution schedule type %s.\n", exec_type);
+			// printc("Error: Found unknown execution schedule type %s.\n", exec_type);
 			BUG();
 		}
 	}
@@ -643,7 +643,7 @@ capmgr_comp_init(void)
 	/* ...then those that we're responsible for... */
 	ret = args_get_entry("captbl", &cap_entries);
 	assert(!ret);
-	printc("Capmgr: processing %d capabilities for components that have already been booted\n", args_len(&cap_entries));
+	// printc("Capmgr: processing %d capabilities for components that have already been booted\n", args_len(&cap_entries));
 
 	for (cont = args_iter(&cap_entries, &i, &curr) ; cont ; ) {
 		compid_t sched_id;
@@ -686,9 +686,9 @@ capmgr_comp_init(void)
 		snprintf(id_serialized, 20, "names/%ld", id);
 		name = args_get(id_serialized);
 		assert(name);
-		printc("\tCreating component %s: id %ld\n", name, id);
-		printc("\t\tcaptbl:%ld, pgtbl:%ld, comp:%ld, captbl/pgtbl frontiers %d & %lx, sched %ld\n",
-		       comp_res.ctc, comp_res.ptc, comp_res.compc, comp_res.captbl_frontier, comp_res.heap_ptr, sched_id);
+		// printc("\tCreating component %s: id %ld\n", name, id);
+		// printc("\t\tcaptbl:%ld, pgtbl:%ld, comp:%ld, captbl/pgtbl frontiers %d & %lx, sched %ld\n",
+		//        comp_res.ctc, comp_res.ptc, comp_res.compc, comp_res.captbl_frontier, comp_res.heap_ptr, sched_id);
 		comp = cm_comp_alloc_with(name, id, &comp_res);
 		assert(comp);
 	}
@@ -772,8 +772,8 @@ capmgr_thd_create_ext(spdid_t client, thdclosure_index_t idx, thdid_t *tid)
 			schedid = c->comp.vm_comp_info.vmm_comp_id;
 		} else {
 			/* don't have permission to create execution in that component. */
-			printc("capmgr: Component asking to create thread from %ld in %ld -- no permission.\n",
-			schedid, (compid_t)client);
+			// printc("capmgr: Component asking to create thread from %ld in %ld -- no permission.\n",
+			// schedid, (compid_t)client);
 			return 0;
 		}
 	}
@@ -991,23 +991,23 @@ cos_init(void)
 	extern unsigned long __thdid_alloc;
 	__thdid_alloc = NUM_CPU * 4;
 
-	printc("Starting the capability manager.\n");
+	// printc("Starting the capability manager.\n");
 	assert(atol(args_get("captbl_end")) >= BOOT_CAPTBL_FREE);
 
 	/* Example code to walk through the components in shared address spaces */
-	printc("Components in shared address spaces: ");
+	// printc("Components in shared address spaces: ");
 	ret = args_get_entry("addrspc_shared", &comps);
 	assert(!ret);
 	for (cont = args_iter(&comps, &i, &curr) ; cont ; cont = args_iter_next(&i, &curr)) {
 		compid_t id = atoi(args_value(&curr));
 
 		found_shared = 1;
-		printc("%ld ", id);
+		// printc("%ld ", id);
 	}
 	if (!found_shared) {
-		printc("none");
+		// printc("none");
 	}
-	printc("\n");
+	// printc("\n");
 
 	/* Get our house in order. Initialize ourself and our data-structures */
 	cos_meminfo_init(&(ci->mi), BOOT_MEM_KM_BASE, COS_MEM_KERN_PA_SZ, BOOT_CAPTBL_SELF_UNTYPED_PT);
@@ -1029,7 +1029,7 @@ cos_init(void)
 	contig_phy_pages = crt_page_allocn(&cm_self()->comp, CONTIG_PHY_PAGES);
 	contigmem_check(cos_compid(), (vaddr_t)contig_phy_pages, CONTIG_PHY_PAGES);
 	end = time_now();
-	printc("Capability initilization: %lld\n", end-start);
+	printc("Capability initialization: %lld\n", end-start);
 	return;
 }
 
@@ -1041,7 +1041,7 @@ cos_parallel_init(coreid_t cid, int init_core, int ncores)
 	cos_defcompinfo_sched_init();
 	capmgr_execution_init(init_core);
 	end = time_now();
-	printc("Parallel initilization: %lld\n", end-start);
+	printc("Capability parallel initialization: %lld\n", end-start);
 }
 
 void

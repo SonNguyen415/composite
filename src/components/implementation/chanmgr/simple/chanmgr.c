@@ -164,7 +164,7 @@ cos_init(void)
 {
 	int i;
 
-	printc("Chanmgr (%ld): creating static, initial channels.\n", cos_compid());
+	//printc("Chanmgr (%ld): creating static, initial channels.\n", cos_compid());
 
 	cycles_t start, end;
 

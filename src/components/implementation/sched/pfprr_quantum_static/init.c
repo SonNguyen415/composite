@@ -72,7 +72,7 @@ component_initialize_next(compid_t cid)
 {
 	struct schedinit_status *s;
 
-	printc("\tSched %ld: %ld is the %ldth component to initialize\n", cos_compid(), cid, init_schedule_off);
+	// printc("\tSched %ld: %ld is the %ldth component to initialize\n", cos_compid(), cid, init_schedule_off);
 	init_schedule[init_schedule_off] = cid;
 	init_schedule_off++;
 	s = &initialization_state[cid];
@@ -97,7 +97,7 @@ calculate_initialization_schedule(void)
 
 	ret = args_get_entry("execute", &exec_entries);
 	assert(!ret);
-	printc("\tSched %ld: %d components that need execution\n", cos_compid(), args_len(&exec_entries));
+	// printc("\tSched %ld: %d components that need execution\n", cos_compid(), args_len(&exec_entries));
 	for (cont = args_iter(&exec_entries, &i, &curr) ; cont ; cont = args_iter_next(&i, &curr)) {
 		int      keylen;
 		compid_t id        = atoi(args_key(&curr, &keylen));
@@ -245,7 +245,7 @@ slm_comp_init_loop(void)
 		n = &initialization_state[client];
 		init_schedule_current++;
 
-		if (cos_coreid() == 0)	printc("\tScheduler %ld: initializing component %ld with thread %ld.\n", cos_compid(), client, t->tid);
+		// if (cos_coreid() == 0)	printc("\tScheduler %ld: initializing component %ld with thread %ld.\n", cos_compid(), client, t->tid);
 		/*
 		 * This waits till init_done effective runs before
 		 * moving on. We need to be highest-priority, so that

@@ -113,7 +113,7 @@ execution_init(int is_init_core)
 	 */
 	ret = args_get_entry("execute", &comps);
 	assert(!ret);
-	if (is_init_core) printc("Execution schedule:\n");
+//	if (is_init_core) printc("Execution schedule:\n");
 	for (cont = args_iter(&comps, &i, &curr) ; cont ; cont = args_iter_next(&i, &curr)) {
 		struct crt_comp     *comp;
 		int      keylen;
@@ -133,16 +133,16 @@ execution_init(int is_init_core)
 
 			if (crt_comp_exec(comp, crt_comp_exec_sched_init(&ctxt, r))) BUG();
 			ss_rcv_activate(r);
-			if (is_init_core) printc("\tCreated scheduling execution for %ld\n", id);
+			//if (is_init_core) printc("\tCreated scheduling execution for %ld\n", id);
 		} else if (!strcmp(exec_type, "init")) {
 			struct crt_thd *t = ss_thd_alloc();
 
 			assert(t);
 			if (crt_comp_exec(comp, crt_comp_exec_thd_init(&ctxt, t))) BUG();
 			ss_thd_activate(t);
-			if (is_init_core) printc("\tCreated thread for %ld\n", id);
+			//if (is_init_core) printc("\tCreated thread for %ld\n", id);
 		} else {
-			printc("Error: Found unknown execution schedule type %s.\n", exec_type);
+			//printc("Error: Found unknown execution schedule type %s.\n", exec_type);
 			BUG();
 		}
 
@@ -184,7 +184,7 @@ comps_init(void)
 
 	ret = args_get_entry("addrspc_shared", &ases);
 	assert(!ret);
-	printc("Creating address spaces & components:\n");
+	//printc("Creating address spaces & components:\n");
 	for (cont = args_iter(&ases, &i, &curr) ; cont ; cont = args_iter_next(&i, &curr)) {
 		/* Component-centric inner iteration */
 		struct initargs comps, curr_comp;
@@ -198,7 +198,7 @@ comps_init(void)
 		struct protdom_ns_vas *ns_vas = ss_ns_vas_alloc_at_id(as_id);
 		assert(ns_vas);
 		if (!parent) {
-			printc("Creating virtual address space %s (%d):\n", args_get_from("name", &curr), as_id);
+			//printc("Creating virtual address space %s (%d):\n", args_get_from("name", &curr), as_id);
 			if (protdom_ns_vas_init(ns_vas, ns_asid) != 0) BUG();
 		} else {
 			int parent_id = atoi(parent);
@@ -209,7 +209,7 @@ comps_init(void)
 			 */
 			assert(parent_vas);
 
-			printc("Creating virtual address space %s (%d) split from VAS %d:\n", args_get_from("name", &curr), as_id, parent_id);
+			//printc("Creating virtual address space %s (%d) split from VAS %d:\n", args_get_from("name", &curr), as_id, parent_id);
 			if (protdom_ns_vas_split(ns_vas, parent_vas, ns_asid) != 0) BUG();
 		}
 		ss_ns_vas_activate(ns_vas);
@@ -232,7 +232,7 @@ comps_init(void)
 			vaddr_t info = atol(args_get_from("info", &comp_data));
 			char  imgpath[INITARGS_MAX_PATHNAME + 1];
 
-			printc("\tComponent %s: %lu\n", name, id);
+			//printc("\tComponent %s: %lu\n", name, id);
 
 			assert(id < MAX_NUM_COMPS && id > 0 && name);
 
@@ -273,7 +273,7 @@ comps_init(void)
 		vaddr_t info = atol(args_get_from("info", &comp_data));
 		char  imgpath[INITARGS_MAX_PATHNAME + 1];
 
-		printc("Component %s: %lu (in an exclusive address space)\n", name, id);
+	//	printc("Component %s: %lu (in an exclusive address space)\n", name, id);
 
 		assert(id < MAX_NUM_COMPS && id > 0 && name);
 
@@ -300,7 +300,7 @@ comps_init(void)
 		} else {
 			assert(elf_hdr);
 			if (crt_comp_create(comp, name, id, elf_hdr, info, pd)) {
-				printc("Error constructing the resource tables and image of component %s.\n", comp->name);
+				//printc("Error constructing the resource tables and image of component %s.\n", comp->name);
 				BUG();
 			}	
 		}
@@ -309,7 +309,7 @@ comps_init(void)
 	/* perform any necessary captbl delegations */
 	ret = args_get_entry("captbl_delegations", &comps);
 	assert(!ret);
-	printc("Capability table delegations (%d capability managers):\n", args_len(&comps));
+	//printc("Capability table delegations (%d capability managers):\n", args_len(&comps));
 	/*
 	 * for now, assume only one capmgr (allocating untyped memory
 	 * gets complex here otherwise)
@@ -328,7 +328,7 @@ comps_init(void)
 		c = boot_comp_get(capmgr_id);
 		assert(c);
 
-		printc("\tCapmgr %ld:\n", capmgr_id);
+		//printc("\tCapmgr %ld:\n", capmgr_id);
 		/* This assumes that all capabilities for a given component are *contiguous* */
 		for (cont2 = args_iter(&curr, &i_inner, &curr_inner) ; cont2 ; cont2 = args_iter_next(&i_inner, &curr_inner)) {
 			char    *type      = args_get_from("type", &curr_inner);
@@ -345,7 +345,7 @@ comps_init(void)
 			target = boot_comp_get(target_id);
 			assert(target);
 
-			printc("\t\tCapability #%ld: %s for component %ld\n", capno, type, target_id);
+			//printc("\t\tCapability #%ld: %s for component %ld\n", capno, type, target_id);
 			if (!strcmp(type, "pgtbl")) {
 				comp_res.ptc = capno;
 				alias_flags |= CRT_COMP_ALIAS_PGTBL;
@@ -384,7 +384,7 @@ comps_init(void)
 	 */
 	ret = args_get_entry("sinvs", &comps);
 	assert(!ret);
-	printc("Synchronous invocations (%d):\n", args_len(&comps));
+	//printc("Synchronous invocations (%d):\n", args_len(&comps));
 	for (cont = args_iter(&comps, &i, &curr) ; cont ; cont = args_iter_next(&i, &curr)) {
 		struct crt_sinv *sinv;
 		int serv_id = atoi(args_get_from("server", &curr));
@@ -402,8 +402,8 @@ comps_init(void)
 				strtoul(args_get_from("s_altfn_addr", &curr), NULL, 10)
 		);
 		ss_sinv_activate(sinv);
-		printc("\t%s (%lu->%lu):\tclient_fn @ 0x%lx, client_ucap @ 0x%lx, server_fn @ 0x%lx\n",
-		       sinv->name, sinv->client->id, sinv->server->id, sinv->c_fn_addr, sinv->c_ucap_addr, sinv->s_fn_addr);
+		// printc("\t%s (%lu->%lu):\tclient_fn @ 0x%lx, client_ucap @ 0x%lx, server_fn @ 0x%lx\n",
+		//        sinv->name, sinv->client->id, sinv->server->id, sinv->c_fn_addr, sinv->c_ucap_addr, sinv->s_fn_addr);
 	#ifdef ENABLE_CHKPT
 		assert(serv->n_sinvs < CRT_COMP_SINVS_LEN);
 		serv->sinvs[serv->n_sinvs] = *sinv;
@@ -431,8 +431,8 @@ comps_init(void)
 		/* TODO: generalize. Give the capmgr 64MB for now. */
 		size_t mem = BOOTER_CAPMGR_MB * 1024 * 1024;
 
-		printc("Capability manager memory delegation (%d capmgrs): %ld bytes.\n",
-		       args_len(&comps), (unsigned long)mem);
+		// printc("Capability manager memory delegation (%d capmgrs): %ld bytes.\n",
+		//        args_len(&comps), (unsigned long)mem);
 
 		c = boot_comp_get(atoi(args_key(&curr, &keylen)));
 		assert(c);
@@ -440,7 +440,7 @@ comps_init(void)
 		if (crt_comp_exec(c, crt_comp_exec_capmgr_init(&ctxt, mem))) BUG();
 	}
 
-	printc("Kernel resources created, booting components!\n");
+	//printc("Kernel resources created, booting components!\n");
 
 	return;
 }
@@ -585,7 +585,7 @@ init_done_chkpt(struct crt_comp *c)
 		thdcap = crt_comp_thdcap_get(new_comp);
 		assert(thdcap);
 		if ((ret = cos_defswitch(thdcap, TCAP_PRIO_MAX, TCAP_RES_INF, cos_sched_sync()))) {
-			printc("Switch failure on thdcap %ld, with ret %d\n", thdcap, ret);
+			//printc("Switch failure on thdcap %ld, with ret %d\n", thdcap, ret);
 			BUG();
 		}
 	}

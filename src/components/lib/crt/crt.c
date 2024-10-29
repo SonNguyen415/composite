@@ -1420,7 +1420,7 @@ crt_compinit_execute(comp_get_fn_t comp_get)
 
 		if (initcore) {
 			thdcap = crt_comp_thdcap_get(comp);
-			printc("Initializing component %lu (executing cos_init).\n", comp->id);
+			// printc("Initializing component %lu (executing cos_init).\n", comp->id);
 		} else {
 			/* wait for the init core's thread to initialize */
 			while (ps_load(&comp->init_state) == CRT_COMP_INIT_COS_INIT) ;
@@ -1470,7 +1470,7 @@ crt_compinit_execute(comp_get_fn_t comp_get)
 		if (ps_load(&comp->init_state) == CRT_COMP_INIT_PASSIVE ||
 		    (comp->main_type == INIT_MAIN_SINGLE && !initcore)) continue;
 
-		if (initcore) printc("Switching to main in component %lu.\n", comp->id);
+		// if (initcore) printc("Switching to main in component %lu.\n", comp->id);
 
 		if (comp->flags & CRT_COMP_SCHED) {
 			struct cos_defcompinfo *compci     = comp->comp_res;
@@ -1545,7 +1545,7 @@ crt_compinit_done(struct crt_comp *c, int parallel_init, init_main_t main_type)
 	assert(c->init_state != CRT_COMP_INIT_COS_INIT && c->init_state != CRT_COMP_INIT_PAR_INIT);
 
 	if (c->init_state == CRT_COMP_INIT_MAIN && c->init_core == cos_cpuid()) {
-		printc("Executing main in component %lu.\n", c->id);
+		// printc("Executing main in component %lu.\n", c->id);
 	}
 
 	return;

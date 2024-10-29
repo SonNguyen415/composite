@@ -129,6 +129,11 @@ cos_init(void)
 {
 
 	int i;
+	patina_event_t evt;
+
+	// Initialize timer and event
+	patina_timer_create();
+
 	perfdata_init(&perf_init, "Channel Send Initialization", result_init, INIT_ITERATION);
 	volatile cycles_32_t start;
 	volatile cycles_32_t end;
