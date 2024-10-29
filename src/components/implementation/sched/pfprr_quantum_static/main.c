@@ -5,6 +5,8 @@
 #include <ps_list.h>
 #include <ps.h>
 #include <crt.h>
+#include <cos_time.h>
+#include <cos_types.h>
 
 /***
  * A version of scheduling using a simple periodic timeout,
@@ -619,6 +621,8 @@ parallel_main(coreid_t cid)
 void
 cos_parallel_init(coreid_t cid, int init_core, int ncores)
 {
+	cycles_t start, end;
+	start = time_now();
 	struct slm_thd_container *t;
 	struct slm_thd *r;
 	thdcap_t thdcap, ipithdcap;
@@ -640,15 +644,25 @@ cos_parallel_init(coreid_t cid, int init_core, int ncores)
 	if (!r) BUG();
 	sched_thd_param_set(ipitid, sched_param_pack(SCHEDP_PRIO, SLM_IPI_THD_PRIO));
 	ck_ring_init(&ipi_data->ring, PAGE_SIZE / sizeof(struct slm_ipi_event));
+
+	end = time_now();
+	printc("Scheduler Parallel initialization: %lld\n", end-start);
 }
 
 void
 cos_init(void)
 {
+	cycles_t start, end;
+	start = time_now();
+
 	struct cos_compinfo *boot_info = cos_compinfo_get(cos_defcompinfo_curr_get());
 
 	cos_meminfo_init(&(boot_info->mi), BOOT_MEM_KM_BASE, COS_MEM_KERN_PA_SZ, BOOT_CAPTBL_SELF_UNTYPED_PT);
 	extern void calculate_initialization_schedule(void);
 	calculate_initialization_schedule();
 	cos_defcompinfo_init();
+
+
+	end = time_now();
+	printc("Scheduler initialization: %lld\n", end-start);
 }

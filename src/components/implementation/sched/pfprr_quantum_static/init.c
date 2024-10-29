@@ -225,7 +225,7 @@ slm_comp_init_loop(void)
 	unsigned long init_schedule_current = 0, i;
 	struct slm_thd *current;
 
-	if (cos_coreid() == 0) printc("Scheduler %ld: Running initialization thread.\n", cos_compid());
+	// if (cos_coreid() == 0) printc("Scheduler %ld: Running initialization thread.\n", cos_compid());
 	/* If there are more components to initialize */
 	while (init_schedule_current != ps_load(&init_schedule_off)) {
 		/* Which is the next component to initialize? */
@@ -260,7 +260,7 @@ slm_comp_init_loop(void)
 		while (ps_load(&n->initialization_thds[cos_coreid()]) == NULL) ;
  	}
 
-	if (cos_coreid() == 0) printc("Scheduler %ld, initialization completed.\n", cos_compid());
+	// if (cos_coreid() == 0) printc("Scheduler %ld, initialization completed.\n", cos_compid());
 
 	/*
 	 * We want to *atomically* awaken all of the threads that will
