@@ -136,7 +136,7 @@ test_tmr(void)
 
 	sched_param_t sps[] = {SCHED_PARAM_CONS(SCHEDP_PRIO, 4), SCHED_PARAM_CONS(SCHEDP_PRIO, 31)};
 
-
+	
 	perfdata_init(&perf, "Timer latency - total", result, ITERATION);
 
 	printc("Create threads:\n");
@@ -153,13 +153,14 @@ test_tmr(void)
 void
 cos_init(void)
 {
+	sched_thd_param_set(cos_thdid(), sched_param_pack(SCHEDP_PRIO, 3));
 	printc("Benchmark for the tmrmgr (w/sched & evt interface).\n");
 }
 
 int
 main(void)
 {
-	sched_thd_block_timeout(0, time_now() + time_usec2cyc(1000 * 1000));
+	sched_thd_block_timeout(0, time_now() + time_usec2cyc(2000 * 1000));
 
 	test_tmr();
 

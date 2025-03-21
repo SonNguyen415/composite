@@ -24,7 +24,7 @@
 #define CACHE_SIZE 512 * 1024
 #define CACHE_LINE_SIZE 32
 
-#undef LOCK_TRACE_DEBUG
+// #define LOCK_TRACE_DEBUG
 #ifdef LOCK_TRACE_DEBUG
 #define debug(format, ...) printc(format, ##__VA_ARGS__)
 #else
@@ -158,7 +158,6 @@ test_lock(void)
 	lock_lo = sched_thd_create(lock_lo_thd, NULL);
 	printc("\tcreating lo thread %ld at prio %d\n", lock_lo, sps[1]);
 	sched_thd_param_set(lock_lo, sps[1]);
-
 	lock_hi = sched_thd_create(lock_hi_thd, NULL);
 	printc("\tcreating hi thread %ld at prio %d\n", lock_hi, sps[0]);
 	sched_thd_param_set(lock_hi, sps[0]);
@@ -167,6 +166,7 @@ test_lock(void)
 void
 cos_init(void)
 {
+	sched_thd_param_set(cos_thdid(), sched_param_pack(SCHEDP_PRIO, 3));
 	printc("Benchmark for the crt_lock (w/sched interface).\n");
 }
 

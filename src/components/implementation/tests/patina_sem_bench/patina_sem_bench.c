@@ -133,6 +133,7 @@ test_sem(void)
 void
 cos_init(void)
 {
+	sched_thd_param_set(cos_thdid(), sched_param_pack(SCHEDP_PRIO, 3));
 	printc("Benchmark for the crt_sem (w/sched interface).\n");
 }
 

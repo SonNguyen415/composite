@@ -103,6 +103,7 @@ test_evt(void)
 void
 cos_init(void)
 {
+	sched_thd_param_set(cos_thdid(), sched_param_pack(SCHEDP_PRIO, 3));
 	printc("Benchmark for the event (w/sched interface).\n");
 }
 
