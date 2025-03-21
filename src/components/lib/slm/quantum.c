@@ -1,3 +1,4 @@
+
 #include <cos_types.h>
 #include <cos_component.h>
 #include <slm.h>
@@ -164,7 +165,7 @@ slm_policy_timer_init(microsec_t period)
 int
 slm_timer_quantum_init(void)
 {
-	slm_policy_timer_init(200);
+	slm_policy_timer_init(1000);
 
 	return 0;
 }
