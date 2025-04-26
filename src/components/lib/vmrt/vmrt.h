@@ -59,6 +59,7 @@ struct vmrt_vm_comp {
 
 	int wire_mode;
 	u16_t vm_mac_id;
+	u32_t vm_ip;
 };
 
 #define VMRT_GPA2HVA(gpa, vm, offset) ((gpa - offset) + vm->guest_addr)

@@ -32,7 +32,7 @@ thdid_t tx_tid = 0;
 void *g_rx_mem = NULL;
 void *g_tx_shmemd = NULL;
 
-INCBIN(vmlinux, "../linux_vm_initframs/vmlinux_echo_server.img")
+INCBIN(vmlinux, "../linux_vm_initframs/vmlinux_rtt_client.img")
 INCBIN(bios, "guest/guest.img")
 
 /* Currently only have one VM component globally managed by this VMM */
@@ -211,9 +211,8 @@ cos_init(void)
 {
 	struct vmrt_vm_vcpu *vcpu;
 	g_vm = vm_comp_create();
-	printc("created vm done:%d, %p\n", g_vm->comp_id, g_vm);
 	g_vm->vm_mac_id = 0;
-	g_vm->vm_ip = inet_addr("15.15.15.1");
+	g_vm->vm_ip = inet_addr("10.10.10.1");
 	printc("created vm done:%d], %p, IP:%u\n", g_vm->comp_id, g_vm, g_vm->vm_ip);
 	vm_list[0] = g_vm;
 }
@@ -223,7 +222,7 @@ cos_parallel_init(coreid_t cid, int init_core, int ncores)
 {
 	struct vmrt_vm_vcpu *vcpu;
 
-	if (cid == 0) {
+	if (cid == 1) {
 		vmrt_vm_vcpu_init(g_vm, 0);
 		vcpu = vmrt_get_vcpu(g_vm, 0);
 
@@ -255,7 +254,7 @@ parallel_main(coreid_t cid)
 	assert(g_tx_shmemd);
 
 	/* DPDK rx and tx will only run on core 0 */
-	if(cid == 0) {
+	if(cid == 1) {
 		sched_thd_block_timeout(0, time_now() + time_usec2cyc(20000000));
 		vcpu = vmrt_get_vcpu(g_vm, 0);
 		vmrt_vm_vcpu_start(vcpu);

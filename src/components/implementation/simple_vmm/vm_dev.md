@@ -88,8 +88,13 @@ sudo apt install libncurses-dev gawk flex bison openssl libssl-dev dkms libelf-d
      ```
      or
      ```bash
-     sudo chmod 666 /dev/tun
+     sudo chmod 666 /dev/net/tun
      ```
+   
+   - To exit Qemu, press `Ctrl + A` followed by `X`.
+  
+
+6. You compiled the kernel and generated image successfully. The generated image is located in `arch/x86/vmxbooter/vmlinux.img`. This image is a compatible boot image that can be loaded by the Composite.
 
 ---
 
