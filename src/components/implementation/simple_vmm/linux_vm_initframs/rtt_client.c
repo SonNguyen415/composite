@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <time.h>
+#include <errno.h>
 
 #define SERVER_IP   "15.15.15.1"  // "127.0.0.1" Change to the server VM IP
 #define PORT        12345
@@ -41,7 +42,7 @@ int main() {
     // Connect to the server
     while (connect(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         sleep(1); // Retry every second
-        printf("Retrying connection...\n");
+        printf("Retrying connection, error: %s\n", strerror(errno));
     }
     printf("Connected to server at %s:%d\n", SERVER_IP, PORT);
 
