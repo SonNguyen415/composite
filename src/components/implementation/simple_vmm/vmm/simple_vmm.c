@@ -177,8 +177,8 @@ rx_task(void)
 {	
 	struct packet_t rx_pkt;
 	while (1) {
-		while(dequeue_packet(g_rx_mem, &rx_pkt) == 0) {
-			printc("#VM(%u): rx_task: received packet of length %u\n", g_vm->vm_ip, rx_pkt.len);
+		while(dequeue_packet(g_rx_mem, &rx_pkt)) {
+			//printc("#VM(%u): rx_task: received packet of length %u\n", g_vm->vm_ip, rx_pkt.len);
 			virtio_net_rcv_one_pkt(rx_pkt.data, rx_pkt.len);
 		}
 	}
@@ -234,6 +234,7 @@ cos_parallel_init(coreid_t cid, int init_core, int ncores)
 		/* Init tx and rx threads */
 		rx_tid = sched_thd_create((void *)rx_task, NULL);
 		cbuf_t shm_id = contigmem_shared_alloc_aligned(SHM_CK_RING_BUFFER_SIZE/PAGE_SIZE, SHM_BM_ALIGN, (vaddr_t *)&g_rx_mem);
+		setup_ring_buffer(g_rx_mem, SHM_CK_RING_BUFFER_SIZE);
 		printc("#VM(%u): shm_id for rx_task is %d\n", g_vm->vm_ip, shm_id);
 		vbridge_shmem_bind_port(g_vm->vm_ip, 0, shm_id);
 		tx_tid = sched_thd_create((void *)tx_task, NULL);		
@@ -248,9 +249,9 @@ parallel_main(coreid_t cid)
 {
 	struct vmrt_vm_vcpu *vcpu;
 	cbuf_t shm_id;
-	int target_ip = inet_addr("10.10.10.1");
+	int target_ip = inet_addr("15.15.15.2");
 	shm_id = vbridge_get_shmem_id(target_ip, 0);
-	printc("#VM(%u): shm_id for tx_task is %d\n", g_vm->vm_ip, shm_id);
+	//printc("#VM(%u): shm_id for tx_task is %d\n", g_vm->vm_ip, shm_id);
 	unsigned long npages = memmgr_shared_page_map_aligned(shm_id, SHM_BM_ALIGN, (vaddr_t *)&g_tx_shmemd);
 	assert(g_tx_shmemd);
 

@@ -29,11 +29,8 @@ static inline int enqueue_packet(struct shared_ring_t *shared, struct packet_t *
 }
 
 static inline int dequeue_packet(struct shared_ring_t *shared, struct packet_t *pkt) {
-
-    if (CK_RING_DEQUEUE_SPMC(shm_ring, &shared->ring, shared->buffer, pkt)) {
-        return 0;
-    }
-    return -1; // No packet available
+    bool ret = CK_RING_DEQUEUE_SPMC(shm_ring, &shared->ring, shared->buffer, pkt);
+    return ret;
 }
 
 // Initialize ring buffer in pre-allocated shared memory
