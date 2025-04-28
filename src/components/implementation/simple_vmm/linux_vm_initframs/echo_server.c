@@ -141,5 +141,7 @@ int main() {
 
     close(client_fd);
     close(server_fd);
+
+    while(1);
     return 0;
 }

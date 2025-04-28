@@ -155,10 +155,7 @@ int main() {
 
         // Null-terminate the received buffer
         recv_buf[received] = '\0';
-
-        printf("[%d] Sent: \"%s\", Received: \"%s\", RTT = %.3f ms\n",
-               i, send_buf, recv_buf, rtt);
-
+        
         // Update stats
         if (rtt < min_rtt) min_rtt = rtt;
         if (rtt > max_rtt) max_rtt = rtt;
@@ -179,6 +176,7 @@ int main() {
         printf("  Avg:   %.3f ms\n", avg_rtt);
     }
 
+    while(1);
     close(sock_fd);
     return 0;
 }
