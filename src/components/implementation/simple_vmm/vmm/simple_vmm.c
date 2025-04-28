@@ -177,8 +177,7 @@ rx_task(void)
 {	
 	struct packet_t rx_pkt;
 	while (1) {
-		while(dequeue_packet(g_rx_mem, &rx_pkt)) {
-			//printc("#VM(%u): rx_task: received packet of length %u\n", g_vm->vm_ip, rx_pkt.len);
+		if(dequeue_packet(g_rx_mem, &rx_pkt) == 0) {
 			virtio_net_rcv_one_pkt(rx_pkt.data, rx_pkt.len);
 		}
 	}
@@ -192,16 +191,11 @@ static void
 tx_task(void)
 {
 	while (1)
-	{
-		// Make the shared memory a ring buffer
+	{	
 		struct packet_t tx_pkt;
 		virtio_net_send_one_pkt(tx_pkt.data, &tx_pkt.len);
-
 		if (tx_pkt.len > 0) {
-			printc("#VM(%u): tx_task: sent packet of length %u\n", g_vm->vm_ip, tx_pkt.len);
-			while(enqueue_packet(g_tx_shmemd, &tx_pkt)) {
-				printc("tx_task: enqueue failed, retrying...\n");
-			}
+			while(enqueue_packet(g_tx_shmemd, &tx_pkt) < 0);
 		}
 	}
 }

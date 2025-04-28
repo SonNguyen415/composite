@@ -177,8 +177,7 @@ rx_task(void)
 {	
 	struct packet_t rx_pkt;
 	while (1) {
-		while(dequeue_packet(g_rx_mem, &rx_pkt)) {
-			printc("#VM(%u): rx_task: received packet of length %u\n", g_vm->vm_ip, rx_pkt.len);
+		if(dequeue_packet(g_rx_mem, &rx_pkt) == 0) {
 			virtio_net_rcv_one_pkt(rx_pkt.data, rx_pkt.len);
 		}
 	}
@@ -193,15 +192,10 @@ tx_task(void)
 {
 	while (1)
 	{
-		// Make the shared memory a ring buffer
 		struct packet_t tx_pkt;
 		virtio_net_send_one_pkt(tx_pkt.data, &tx_pkt.len);
-
 		if (tx_pkt.len > 0) {
-			//printc("#VM(%u): tx_task: sent packet of length %u\n", g_vm->vm_ip, tx_pkt.len);
-			while(enqueue_packet(g_tx_shmemd, &tx_pkt)) {
-				//printc("tx_task: enqueue failed, retrying...\n");
-			}
+			while(enqueue_packet(g_tx_shmemd, &tx_pkt) < 0);
 		}
 	}
 }
@@ -220,7 +214,8 @@ cos_init(void)
 void
 cos_parallel_init(coreid_t cid, int init_core, int ncores)
 {
-	struct vmrt_vm_vcpu *vcpu;
+	struct vmrt_vm_vcpu *vcpu;	
+	for (volatile int i=0; i<100000; i++);
 
 	if (cid == 1) {
 		vmrt_vm_vcpu_init(g_vm, 0);
@@ -253,7 +248,7 @@ parallel_main(coreid_t cid)
 	printc("#VM(%u): shm_id for tx_task is %d\n", g_vm->vm_ip, shm_id);
 	unsigned long npages = memmgr_shared_page_map_aligned(shm_id, SHM_BM_ALIGN, (vaddr_t *)&g_tx_shmemd);
 	assert(g_tx_shmemd);
-
+	
 	/* DPDK rx and tx will only run on core 0 */
 	if(cid == 1) {
 		sched_thd_block_timeout(0, time_now() + time_usec2cyc(20000000));
