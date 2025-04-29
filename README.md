@@ -21,3 +21,6 @@ We wanted to run it on baremetal to see accurate performance results, but the ex
 - We ran our tests via `vmm_multi_test.toml` 
 - Component `vmm` uses `simple_vmm.vmm`, it runs the server `echo_server.c` with an IP of `15.15.15.1` at port `12345`
 - Component `vmm1` uses `simple_vmm.vmm_client`, it runs the client `rtt_client.c` with an IP of `15.15.15.2`
+
+## Attribution
+We used ChatGPT to help with the debugging and to find resources for the linux networking interface settings. 
